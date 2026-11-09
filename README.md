@@ -70,3 +70,18 @@ npm run fmt:check # Vérifie le formatage
 ```
 
 La configuration de couverture des tests exige 100 % pour les instructions, branches, fonctions et lignes.
+
+## Initialisation de la base SQLite
+
+La base de données SQLite du tableau de bord est créée et initialisée avec
+`node:sqlite` :
+
+```sh
+node src/back-end/backend-cli.ts
+```
+
+Le chemin par défaut est `./data/movies.sqlite`. Pour utiliser un autre fichier :
+
+```sh
+node src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite
+```

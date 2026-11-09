@@ -1,21 +1,29 @@
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE film (
   tmdb_id INTEGER PRIMARY KEY CHECK (tmdb_id > 0),
   title TEXT NOT NULL,
   original_title TEXT NOT NULL,
   overview TEXT,
-  release_date DATE,
-  original_language VARCHAR(10),
+  release_date TEXT,
+  release_year INTEGER GENERATED ALWAYS AS (
+    CASE
+      WHEN release_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+      THEN CAST(substr(release_date, 1, 4) AS INTEGER)
+    END
+  ) STORED,
+  original_language TEXT,
   poster_path TEXT,
   backdrop_path TEXT,
-  popularity NUMERIC(12, 3),
-  vote_average NUMERIC(4, 2),
+  popularity REAL,
+  vote_average REAL,
   vote_count INTEGER,
   runtime_minutes INTEGER CHECK (
     runtime_minutes IS NULL OR runtime_minutes > 0
   ),
-  budget BIGINT CHECK (budget IS NULL OR budget > 0),
-  revenue BIGINT CHECK (revenue IS NULL OR revenue > 0),
-  observed_at TIMESTAMPTZ NOT NULL
+  budget INTEGER CHECK (budget IS NULL OR budget > 0),
+  revenue INTEGER CHECK (revenue IS NULL OR revenue > 0),
+  observed_at TEXT NOT NULL
 );
 
 CREATE TABLE genre (
@@ -24,7 +32,7 @@ CREATE TABLE genre (
 );
 
 CREATE TABLE country (
-  iso_3166_1 CHAR(2) PRIMARY KEY,
+  iso_3166_1 TEXT PRIMARY KEY CHECK (length(iso_3166_1) = 2),
   name TEXT NOT NULL
 );
 
