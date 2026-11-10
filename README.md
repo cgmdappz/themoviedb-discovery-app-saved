@@ -85,3 +85,16 @@ Le chemin par défaut est `./data/movies.sqlite`. Pour utiliser un autre fichier
 ```sh
 node src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite
 ```
+
+Le catalogue des genres peut être importé ou actualisé depuis un CSV conforme
+aux colonnes `id` et `name` :
+
+```sh
+node src/back-end/backend-cli.ts add-genres ./data/genres.csv
+node src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite add-genres ./data/genres.csv
+node src/back-end/backend-cli.ts clean-genres
+```
+
+Le fichier [`data/genres.csv`](data/genres.csv) fournit un échantillon de
+catalogue. `clean-genres` conserve les genres liés à un film et supprime les
+autres.
