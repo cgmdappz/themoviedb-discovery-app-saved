@@ -43,7 +43,7 @@ describe('AboutPage', () => {
     expect(screen.getByText('Vite')).toBeTruthy();
 
     expect(repositoryLink.getAttribute('href')).toBe(
-      'https://github.com/alex1dregirard/themoviedb-discovery-app-demo-2026-2027',
+      'https://github.com/cgmdappz/themoviedb-discovery-app-saved',
     );
     expect(repositoryLink.getAttribute('target')).toBe('_blank');
     expect(repositoryLink.getAttribute('rel')).toBe('noopener noreferrer');
