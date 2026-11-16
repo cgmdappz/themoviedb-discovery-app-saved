@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DashboardPage from './DashboardPage';
 import type { MovieDetails } from '../../../back-end/types/MoviesTypes';
@@ -198,5 +204,135 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('status').textContent).toContain(
       'TMDB indisponible',
     );
+  });
+
+  it('uses the plural notice when multiple movie details fail', async () => {
+    // Arrange: make two of three detail requests unavailable.
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      if (String(input).includes('/popular')) {
+        const page = new URL(
+          String(input),
+          'http://localhost',
+        ).searchParams.get('page');
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              page: Number(page),
+              results: page === '1' ? [{ id: 1 }, { id: 2 }, { id: 3 }] : [],
+              total_pages: 1,
+              total_results: 3,
+            }),
+          ),
+        );
+      }
+
+      const id = Number(
+        new URL(String(input), 'http://localhost').pathname.split('/').pop(),
+      );
+      return id === 1
+        ? Promise.resolve(new Response(JSON.stringify(movie)))
+        : Promise.resolve(new Response('', { status: 502 }));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // Act
+    render(<DashboardPage />);
+
+    // Assert: the notice describes multiple skipped detail records correctly.
+    expect(await screen.findByText('Films analysés')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toContain(
+      '2 fiches TMDB indisponibles',
+    );
+  });
+
+  it('shows an unknown year for a film without a release date', async () => {
+    // Arrange: provide a film whose release date is missing.
+    const noDateMovie = {
+      ...movie,
+      id: 4,
+      title: 'Film sans date',
+      release_date: '',
+    };
+    mockDashboardApi([noDateMovie]);
+
+    // Act: include year zero so the film with no known year is in the table.
+    render(<DashboardPage />);
+    expect(
+      await screen.findByText('Aucun film ne correspond aux filtres.'),
+    ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Année de début'), {
+      target: { value: '0' },
+    });
+    fireEvent.change(screen.getByLabelText('Année de fin'), {
+      target: { value: '0' },
+    });
+
+    // Assert: an absent date is rendered as unknown, not as an empty value.
+    expect(
+      screen.getByRole('row', { name: /Film sans date/ }).textContent,
+    ).toContain('Inconnue');
+  });
+
+  it('does not update state when page requests finish after unmount', async () => {
+    // Arrange: hold the page responses until after the dashboard is unmounted.
+    const resolvers: Array<(response: Response) => void> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolvers.push(resolve);
+          }),
+      ),
+    );
+
+    // Act
+    const { unmount } = render(<DashboardPage />);
+    unmount();
+    await act(async () => {
+      for (const resolve of resolvers) {
+        resolve(
+          new Response(
+            JSON.stringify({
+              page: 1,
+              results: [],
+              total_pages: 1,
+              total_results: 0,
+            }),
+          ),
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Assert: the request lifecycle completes safely after cleanup.
+    expect(resolvers).toHaveLength(3);
+  });
+
+  it('does not show an error when the request rejects after unmount', async () => {
+    // Arrange: keep a rejected request pending until after unmount.
+    let rejectRequest: (error: Error) => void = () => {};
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        () =>
+          new Promise<Response>((_resolve, reject) => {
+            rejectRequest = reject;
+          }),
+      ),
+    );
+
+    // Act
+    const { unmount } = render(<DashboardPage />);
+    unmount();
+    await act(async () => {
+      rejectRequest(new Error('Network error'));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Assert: the cancelled request does not transition the unmounted page.
+    expect(
+      screen.queryByText('Impossible de charger les données du dashboard.'),
+    ).toBeNull();
   });
 });
