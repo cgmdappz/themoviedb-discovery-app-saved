@@ -60,6 +60,34 @@ describe('backend CLI catalog commands', () => {
     database.close();
   });
 
+  it('creates the database and parent directory with the default opener', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const databasePath = join(directory, 'nested', 'default.sqlite');
+    const logger = vi.fn();
+
+    // Act
+    createCli(undefined, logger).parse([
+      'node',
+      'backend-cli',
+      '--path',
+      databasePath,
+      'clean-genres',
+    ]);
+
+    // Assert
+    const database = new DatabaseSync(databasePath);
+    expect(
+      database
+        .prepare("SELECT name FROM sqlite_master WHERE name = 'genres'")
+        .get(),
+    ).toBeTruthy();
+    database.close();
+    expect(logger).toHaveBeenCalledWith(
+      `Deleted 0 unused genres from ${resolve(databasePath)}`,
+    );
+  });
+
   it('imports genres into the selected database and reports the count and path', () => {
     // Arrange
     const directory = createTemporaryDirectory();
@@ -157,6 +185,43 @@ describe('backend CLI catalog commands', () => {
       verificationDatabase.prepare('SELECT id, name FROM genres').all(),
     ).toEqual([{ id: 1, name: 'Original' }]);
     verificationDatabase.close();
+  });
+
+  it('reports both import and rollback failures', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const databasePath = join(directory, 'movies.sqlite');
+    const csvPath = join(directory, 'genres.csv');
+    const seedDatabase = getDatabase(databasePath);
+    seedDatabase.exec(`
+      CREATE TRIGGER reject_genre BEFORE INSERT ON genres
+      BEGIN SELECT RAISE(ABORT, 'rejected genre'); END;
+    `);
+    seedDatabase.close();
+    writeFileSync(csvPath, 'id,name\n1,Rejected\n');
+    let openedDatabase: DatabaseSync | undefined;
+    const openDatabase: OpenDatabase = (path) => {
+      openedDatabase = new DatabaseSync(path);
+      const originalExec = openedDatabase.exec.bind(openedDatabase);
+      vi.spyOn(openedDatabase, 'exec').mockImplementation((sql) => {
+        if (sql === 'ROLLBACK') throw new Error('rollback denied');
+        return originalExec(sql);
+      });
+      return openedDatabase;
+    };
+
+    // Act and assert: both failures are preserved and the connection closes.
+    expect(() =>
+      createCli(openDatabase).parse([
+        'node',
+        'backend-cli',
+        '--path',
+        databasePath,
+        'add-genres',
+        csvPath,
+      ]),
+    ).toThrow(AggregateError);
+    expect(openedDatabase?.isOpen).toBe(false);
   });
 
   it('removes only genres not associated with a film', () => {
