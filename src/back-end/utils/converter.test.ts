@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { toSupportedMovie, toSupportedMovieDetails } from './converter';
-import type { TmdbMovie, TmdbMovieDetails } from './types/MoviesTypes';
+import type { TmdbMovie, TmdbMovieDetails } from '../types/MoviesTypes';
 
 // Mock TMDB movie object for testing.
 const mockTmdbMovie: TmdbMovie = {
@@ -38,6 +38,10 @@ const mockTmdbMovieDetails: TmdbMovieDetails = {
     { id: 1, name: 'Company 1', logo_path: null, origin_country: 'US' },
   ],
   release_date: '2023-01-01',
+  runtime: 123,
+  budget: 1000000,
+  revenue: 2500000,
+  production_countries: [{ iso_3166_1: 'FR', name: 'France' }],
   tagline: 'This is a tagline.',
   title: 'Title',
   video: false,

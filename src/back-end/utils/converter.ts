@@ -48,6 +48,10 @@ export const toSupportedMovieDetails = (
     title: movie.title,
     vote_average: movie.vote_average,
     vote_count: movie.vote_count,
+    runtime: movie.runtime,
+    budget: movie.budget,
+    revenue: movie.revenue,
+    production_countries: movie.production_countries,
     tagline: movie.tagline,
   };
 };
