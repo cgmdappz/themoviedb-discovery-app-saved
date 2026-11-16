@@ -12,6 +12,27 @@ import type {
 
 export { createMovieQueryParams } from '../utils/movie-query-params';
 
+function createTmdbRequest(
+  path: string,
+  queryParams: URLSearchParams,
+): [string, RequestInit] {
+  const requestParams = new URLSearchParams(queryParams);
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json;charset=utf-8',
+  };
+
+  if (tmdbAccessToken.split('.').length === 3) {
+    headers.Authorization = `Bearer ${tmdbAccessToken}`;
+  } else {
+    requestParams.set('api_key', tmdbAccessToken);
+  }
+
+  return [
+    `https://api.themoviedb.org/3/${path}?${requestParams.toString()}`,
+    { headers },
+  ];
+}
+
 /**
  * Registers the movies API routes (popular movies and movie details) on the given Express application instance.
  * @param app - The Express application instance to register the movies API routes on.
@@ -28,15 +49,8 @@ export function registerMoviesApi(app: Express): void {
         // log the query parameters for debugging purposes
         console.log('Query Params:', queryParams.toString());
 
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/popular?${queryParams.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${tmdbAccessToken}`,
-              'Content-Type': 'application/json;charset=utf-8',
-            },
-          },
-        );
+        const [url, options] = createTmdbRequest('movie/popular', queryParams);
+        const response = await fetch(url, options);
 
         if (!response.ok) {
           throw new Error(
@@ -77,15 +91,11 @@ export function registerMoviesApi(app: Express): void {
       console.log('Query Params:', queryParams.toString());
 
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/${movieId}?${queryParams.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${tmdbAccessToken}`,
-              'Content-Type': 'application/json;charset=utf-8',
-            },
-          },
+        const [url, options] = createTmdbRequest(
+          `movie/${movieId}`,
+          queryParams,
         );
+        const response = await fetch(url, options);
 
         if (!response.ok) {
           throw new Error(

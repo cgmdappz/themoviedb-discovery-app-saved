@@ -5,7 +5,6 @@ import {
   DEFAULT_PAGE,
   DEFAULT_REGION,
 } from '../utils/constants';
-import { tmdbAccessToken } from '../utils/config';
 import * as movieQueryParams from '../utils/movie-query-params';
 import { registerMoviesApi } from './movies-api';
 import type {
@@ -13,12 +12,15 @@ import type {
   TmdbMoviesRawResponse,
 } from '../types/MoviesTypes';
 
-const { toSupportedMovieMock, toSupportedMovieDetailsMock } = vi.hoisted(
-  () => ({
-    toSupportedMovieMock: vi.fn(),
-    toSupportedMovieDetailsMock: vi.fn(),
-  }),
-);
+const {
+  tmdbAccessTokenMock,
+  toSupportedMovieMock,
+  toSupportedMovieDetailsMock,
+} = vi.hoisted(() => ({
+  tmdbAccessTokenMock: { value: 'test-access-token' },
+  toSupportedMovieMock: vi.fn(),
+  toSupportedMovieDetailsMock: vi.fn(),
+}));
 
 vi.mock('../utils/converter', () => ({
   toSupportedMovie: toSupportedMovieMock,
@@ -26,7 +28,9 @@ vi.mock('../utils/converter', () => ({
 }));
 
 vi.mock('../utils/config', () => ({
-  tmdbAccessToken: 'test-access-token',
+  get tmdbAccessToken() {
+    return tmdbAccessTokenMock.value;
+  },
 }));
 
 type RouteHandler = (
@@ -66,6 +70,7 @@ function tmdbResponse(data: unknown, ok = true, status = 200) {
 describe('movies API', () => {
   beforeEach(() => {
     handlers.clear();
+    tmdbAccessTokenMock.value = 'test-access-token';
     registerMoviesApi(app);
     toSupportedMovieMock.mockReset();
     toSupportedMovieDetailsMock.mockReset();
@@ -79,6 +84,38 @@ describe('movies API', () => {
   });
 
   describe('GET /api/movies/popular', () => {
+    it('sends JWT access tokens as bearer authorization', async () => {
+      // Arrange
+      tmdbAccessTokenMock.value = 'eyJhbGciOiJIUzI1NiJ9.payload.signature';
+      const fetchMock = vi.fn().mockResolvedValueOnce(
+        tmdbResponse({
+          page: 1,
+          results: [],
+          total_pages: 1,
+          total_results: 0,
+        }),
+      );
+      vi.stubGlobal('fetch', fetchMock);
+      const response = createResponse();
+
+      // Act
+      await getHandler('/api/movies/popular')(
+        { query: {} } as Request,
+        response,
+        vi.fn(),
+      );
+
+      // Assert
+      expect(fetchMock).toHaveBeenCalledWith(
+        `https://api.themoviedb.org/3/movie/popular?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}`,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization: `Bearer ${tmdbAccessTokenMock.value}`,
+          }),
+        }),
+      );
+    });
+
     it('returns popular movies', async () => {
       // Arrange
       const rawMovie = { id: 1 };
@@ -111,10 +148,10 @@ describe('movies API', () => {
 
       // Assert that the fetch function was called with the correct URL and headers
       expect(fetchMock).toHaveBeenCalledWith(
-        `https://api.themoviedb.org/3/movie/popular?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}`,
+        `https://api.themoviedb.org/3/movie/popular?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}&api_key=${tmdbAccessTokenMock.value}`,
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: `Bearer ${tmdbAccessToken}`,
+            'Content-Type': 'application/json;charset=utf-8',
           }),
         }),
       );
@@ -179,10 +216,10 @@ describe('movies API', () => {
 
       // Assert
       expect(fetchMock).toHaveBeenCalledWith(
-        `https://api.themoviedb.org/3/movie/42?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}`,
+        `https://api.themoviedb.org/3/movie/42?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}&api_key=${tmdbAccessTokenMock.value}`,
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: `Bearer ${tmdbAccessToken}`,
+            'Content-Type': 'application/json;charset=utf-8',
           }),
         }),
       );
