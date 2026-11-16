@@ -40,4 +40,19 @@ export class CountryRepository {
       statement.run(country.code, country.name);
     }
   }
+
+  public deleteUnused(): number {
+    const result = this.database
+      .prepare(`
+        DELETE FROM countries
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM production_countries
+          WHERE production_countries.country_code = countries.code
+        )
+      `)
+      .run();
+
+    return Number(result.changes);
+  }
 }

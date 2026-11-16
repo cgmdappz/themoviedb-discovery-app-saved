@@ -77,6 +77,23 @@ npx tsx src/back-end/backend-cli.ts clean-genres
 npx tsx src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite clean-genres
 ```
 
+## Gestion du catalogue des pays
+
+Le fichier [data/countries.csv](data/countries.csv) fournit un exemple
+d'import. Pour importer ou actualiser les pays :
+
+```sh
+npx tsx src/back-end/backend-cli.ts add-countries ./data/countries.csv
+npx tsx src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite add-countries ./data/countries.csv
+```
+
+Pour supprimer uniquement les pays qui ne sont associés à aucun film :
+
+```sh
+npx tsx src/back-end/backend-cli.ts clean-countries
+npx tsx src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite clean-countries
+```
+
 ## API locale
 
 | Méthode | Route                 | Description                                                       |
