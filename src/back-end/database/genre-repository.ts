@@ -7,7 +7,11 @@ type GenreRow = {
 };
 
 export class GenreRepository {
-  public constructor(private readonly database: DatabaseSync) {}
+  private readonly database: DatabaseSync;
+
+  public constructor(database: DatabaseSync) {
+    this.database = database;
+  }
 
   public findById(id: number): Genre | undefined {
     const row = this.database
@@ -35,5 +39,20 @@ export class GenreRepository {
     for (const genre of genres) {
       statement.run(genre.id, genre.name);
     }
+  }
+
+  public deleteUnused(): number {
+    const result = this.database
+      .prepare(`
+        DELETE FROM genres
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM movie_genres
+          WHERE movie_genres.genre_id = genres.id
+        )
+      `)
+      .run();
+
+    return Number(result.changes);
   }
 }
