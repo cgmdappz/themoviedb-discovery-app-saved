@@ -4,6 +4,8 @@ import { dirname, resolve } from 'node:path';
 import { Command } from 'commander';
 import { GenreRepository } from './database/genre-repository.ts';
 import { parseGenresCsv } from './database/genres-csv.ts';
+import { CountryRepository } from './database/country-repository.ts';
+import { parseCountriesCsv } from './database/countries-csv.ts';
 import { initializeDatabase } from './database/schema.ts';
 
 export const DEFAULT_DATABASE_PATH = './data/movies.sqlite';
@@ -118,6 +120,52 @@ export function createCli(
         },
         logger,
         (count, path) => `Deleted ${count} unused genres from ${path}`,
+      );
+    });
+
+  cli
+    .command('add-countries <csv-file>')
+    .description('Import or update countries from a CSV file')
+    .action((csvFile: string) => {
+      const countries = parseCountriesCsv(
+        readFileSync(resolve(csvFile), 'utf8'),
+      );
+      const databasePath = getDatabasePath(cli);
+
+      openDatabaseAtPath(
+        databasePath,
+        openDatabase,
+        (database) => {
+          let imported = 0;
+          runTransaction(database, () => {
+            new CountryRepository(database).saveAll(countries);
+            imported = countries.length;
+          });
+          return imported;
+        },
+        logger,
+        (count, path) => `Imported ${count} countries into ${path}`,
+      );
+    });
+
+  cli
+    .command('clean-countries')
+    .description('Delete countries not associated with a movie')
+    .action(() => {
+      const databasePath = getDatabasePath(cli);
+
+      openDatabaseAtPath(
+        databasePath,
+        openDatabase,
+        (database) => {
+          let deleted = 0;
+          runTransaction(database, () => {
+            deleted = new CountryRepository(database).deleteUnused();
+          });
+          return deleted;
+        },
+        logger,
+        (count, path) => `Deleted ${count} unused countries from ${path}`,
       );
     });
 

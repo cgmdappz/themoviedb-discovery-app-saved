@@ -98,3 +98,17 @@ node src/back-end/backend-cli.ts clean-genres
 Le fichier [`data/genres.csv`](data/genres.csv) fournit un échantillon de
 catalogue. `clean-genres` conserve les genres liés à un film et supprime les
 autres.
+
+Le catalogue des pays suit le même fonctionnement, avec un CSV contenant
+exactement les colonnes `code` et `name` :
+
+```sh
+node src/back-end/backend-cli.ts add-countries ./data/countries.csv
+node src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite add-countries ./data/countries.csv
+node src/back-end/backend-cli.ts clean-countries
+node src/back-end/backend-cli.ts --path ./data/custom-movies.sqlite clean-countries
+```
+
+Le fichier [`data/countries.csv`](data/countries.csv) contient quelques pays
+d'exemple. `clean-countries` conserve les pays associés à un film et supprime
+les autres.

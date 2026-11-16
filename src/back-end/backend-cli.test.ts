@@ -276,4 +276,180 @@ describe('backend CLI genre commands', () => {
       expect.stringContaining('Deleted 0 unused genres from'),
     );
   });
+
+  it('imports countries into the selected database and reports the count and path', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const databasePath = join(directory, 'custom.sqlite');
+    const csvPath = join(directory, 'countries.csv');
+    writeFileSync(csvPath, 'code,name\nUS,United States\nFR,France\n');
+    const logger = vi.fn();
+    let importedDatabase: DatabaseSync | undefined;
+    const openDatabase: OpenDatabase = (path) => {
+      importedDatabase = new DatabaseSync(path);
+      return importedDatabase;
+    };
+
+    // Act
+    createCli(openDatabase, logger).parse([
+      'node',
+      'backend-cli',
+      '--path',
+      databasePath,
+      'add-countries',
+      csvPath,
+    ]);
+
+    // Assert
+    expect(importedDatabase?.isOpen).toBe(false);
+    const database = new DatabaseSync(databasePath);
+    expect(
+      database
+        .prepare('SELECT iso_3166_1, name FROM country ORDER BY iso_3166_1')
+        .all(),
+    ).toEqual([
+      { iso_3166_1: 'FR', name: 'France' },
+      { iso_3166_1: 'US', name: 'United States' },
+    ]);
+    database.close();
+    expect(logger).toHaveBeenCalledWith(
+      `Imported 2 countries into ${databasePath}`,
+    );
+  });
+
+  it('validates countries before opening SQLite', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const csvPath = join(directory, 'invalid-countries.csv');
+    writeFileSync(csvPath, 'code,name\nfr,France\n');
+    const openDatabase = vi.fn<OpenDatabase>(() => {
+      throw new Error('Database must not be opened');
+    });
+
+    // Act and assert
+    expect(() =>
+      createCli(openDatabase).parse([
+        'node',
+        'backend-cli',
+        'add-countries',
+        csvPath,
+      ]),
+    ).toThrow(/two-letter uppercase/);
+    expect(openDatabase).not.toHaveBeenCalled();
+  });
+
+  it('rolls back failed country imports and closes the database connection', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const databasePath = join(directory, 'movies.sqlite');
+    const csvPath = join(directory, 'countries.csv');
+    const seedDatabase = createDatabase(databasePath);
+    seedDatabase.prepare("INSERT INTO country VALUES ('FR', 'France')").run();
+    seedDatabase.exec(`
+      CREATE TRIGGER reject_country BEFORE INSERT ON country
+      WHEN NEW.iso_3166_1 = 'US'
+      BEGIN SELECT RAISE(ABORT, 'rejected country'); END;
+    `);
+    seedDatabase.close();
+    writeFileSync(csvPath, 'code,name\nFR,Updated France\nUS,United States\n');
+    let openedDatabase: DatabaseSync | undefined;
+    const openDatabase: OpenDatabase = (path) => {
+      openedDatabase = new DatabaseSync(path);
+      return openedDatabase;
+    };
+
+    // Act and assert
+    expect(() =>
+      createCli(openDatabase).parse([
+        'node',
+        'backend-cli',
+        '--path',
+        databasePath,
+        'add-countries',
+        csvPath,
+      ]),
+    ).toThrow(/rejected country/);
+    expect(openedDatabase?.isOpen).toBe(false);
+
+    const verificationDatabase = new DatabaseSync(databasePath);
+    expect(
+      verificationDatabase
+        .prepare('SELECT iso_3166_1, name FROM country')
+        .all(),
+    ).toEqual([{ iso_3166_1: 'FR', name: 'France' }]);
+    verificationDatabase.close();
+  });
+
+  it('removes only countries not associated with a film', () => {
+    // Arrange
+    const directory = createTemporaryDirectory();
+    const databasePath = join(directory, 'movies.sqlite');
+    const database = createDatabase(databasePath);
+    database
+      .prepare(
+        `INSERT INTO film (
+          tmdb_id, title, original_title, observed_at
+        ) VALUES (1, 'Film', 'Film', 'now')`,
+      )
+      .run();
+    database.prepare("INSERT INTO country VALUES ('FR', 'France')").run();
+    database
+      .prepare("INSERT INTO country VALUES ('US', 'United States')")
+      .run();
+    database.prepare('INSERT INTO film_country VALUES (1, ?)').run('FR');
+    database.close();
+    const logger = vi.fn();
+    let openedDatabase: DatabaseSync | undefined;
+    const openDatabase: OpenDatabase = (path) => {
+      openedDatabase = new DatabaseSync(path);
+      return openedDatabase;
+    };
+
+    // Act
+    createCli(openDatabase, logger).parse([
+      'node',
+      'backend-cli',
+      '--path',
+      databasePath,
+      'clean-countries',
+    ]);
+
+    // Assert
+    expect(openedDatabase?.isOpen).toBe(false);
+    expect(logger).toHaveBeenCalledWith(
+      `Deleted 1 unused countries from ${databasePath}`,
+    );
+    const verificationDatabase = new DatabaseSync(databasePath);
+    expect(
+      verificationDatabase
+        .prepare('SELECT iso_3166_1, name FROM country')
+        .all(),
+    ).toEqual([{ iso_3166_1: 'FR', name: 'France' }]);
+    verificationDatabase.close();
+  });
+
+  it('uses the default path for clean-countries', () => {
+    // Arrange
+    const database = new DatabaseSync(':memory:');
+    initializeDatabase(database);
+    const close = vi.spyOn(database, 'close');
+    const openDatabase = vi.fn<OpenDatabase>(() => database);
+    const logger = vi.fn();
+
+    // Act
+    createCli(openDatabase, logger).parse([
+      'node',
+      'backend-cli',
+      'clean-countries',
+    ]);
+
+    // Assert
+    expect(openDatabase).toHaveBeenCalledWith(
+      expect.stringContaining(DEFAULT_DATABASE_PATH.replace('./', '')),
+    );
+    expect(close).toHaveBeenCalledOnce();
+    expect(logger).toHaveBeenCalledWith(
+      expect.stringContaining('Deleted 0 unused countries from'),
+    );
+  });
 });
