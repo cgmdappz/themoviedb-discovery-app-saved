@@ -7,7 +7,11 @@ type GenreRow = {
 };
 
 export class GenreRepository {
-  public constructor(private readonly database: DatabaseSync) {}
+  private readonly database: DatabaseSync;
+
+  public constructor(database: DatabaseSync) {
+    this.database = database;
+  }
 
   public findById(id: number): Genre | undefined {
     const row = this.database
