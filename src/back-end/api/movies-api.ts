@@ -12,7 +12,7 @@ import type {
 
 export { createMovieQueryParams } from '../utils/movie-query-params';
 
-function createTmdbRequest(
+export function createTmdbRequest(
   path: string,
   queryParams: URLSearchParams,
 ): [string, RequestInit] {
