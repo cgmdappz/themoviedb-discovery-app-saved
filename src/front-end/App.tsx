@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import Footer from './components/Footer/Footer';
 import './app.css';
+import MovieDashboardPage from './pages/MovieDashboardPage/MovieDashboardPage';
 import MovieDetailPage from './pages/MovieDetailPage/MovieDetailPage';
 import MoviesListPage from './pages/MoviesListPage/MoviesListPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
@@ -34,6 +35,7 @@ export default function App() {
       />
       <Routes>
         <Route path="/" element={<Navigate to="/movies" replace />} />
+        <Route path="/dashboard" element={<MovieDashboardPage />} />
         <Route path="/movies" element={<MoviesListPage />} />
         <Route path="/movies/:id" element={<MovieDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
