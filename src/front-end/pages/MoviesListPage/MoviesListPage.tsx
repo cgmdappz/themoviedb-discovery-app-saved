@@ -5,31 +5,50 @@ import {
   DEFAULT_PAGE,
   DEFAULT_REGION,
 } from '../../../back-end/utils/constants';
-import type { Movie } from '../../../back-end/types/MoviesTypes';
+import type {
+  Movie,
+  MoviesApiResponse,
+} from '../../../back-end/types/MoviesTypes';
 
 export default function MoviesListPage() {
-  // State to hold the fetched movies data, initialized to null
-  const [movies, setMovies] = useState<Movie[] | null>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
+    'loading',
+  );
 
   useEffect(() => {
-    // read parameters from the URL query string or use default values if not provided
-    const urlParams = new URLSearchParams(window.location.search);
-    const language = urlParams.get('language') || DEFAULT_LANGUAGE;
-    const page = urlParams.get('page') || DEFAULT_PAGE;
-    const region = urlParams.get('region') || DEFAULT_REGION;
+    async function loadMovies() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const language = urlParams.get('language') || DEFAULT_LANGUAGE;
+      const page = urlParams.get('page') || DEFAULT_PAGE;
+      const region = urlParams.get('region') || DEFAULT_REGION;
 
-    // debug log the query parameters
-    console.log('Query Params from frontend:', { language, page, region });
+      console.log('Query Params from frontend:', { language, page, region });
 
-    // fetch data from an API /api/movies/popular with query parameters
-    fetch(
-      `/api/movies/popular?language=${language}&page=${page}&region=${region}`,
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Fetched movies data:', data); // Log the fetched data for debugging
-        setMovies(data.results); // Update the state with the fetched movies data
-      });
+      try {
+        const response = await fetch(
+          `/api/movies/popular?language=${language}&page=${page}&region=${region}`,
+        );
+        if (!response.ok) {
+          throw new Error(
+            `Movies API request failed with status ${response.status}`,
+          );
+        }
+
+        const data = (await response.json()) as MoviesApiResponse;
+        if (!Array.isArray(data.results)) {
+          throw new Error('Movies API returned an invalid results list.');
+        }
+
+        setMovies(data.results);
+        setStatus('ready');
+      } catch (error) {
+        console.error('Error loading popular movies:', error);
+        setStatus('error');
+      }
+    }
+
+    void loadMovies();
   }, []);
 
   return (
@@ -42,7 +61,19 @@ export default function MoviesListPage() {
         </h2>
       </header>
       <section>
-        {movies ? (
+        {status === 'loading' && <p className="status-message">Loading...</p>}
+        {status === 'error' && (
+          <p className="status-message" role="alert">
+            Impossible de charger les films. Vérifiez le serveur et le jeton
+            TMDB configuré côté backend.
+          </p>
+        )}
+        {status === 'ready' && movies.length === 0 && (
+          <p className="status-message" role="status">
+            Aucun film n'a été renvoyé par TMDB.
+          </p>
+        )}
+        {status === 'ready' && movies.length > 0 && (
           <ul className="movie-grid">
             {movies.map((movie) => (
               <li key={movie.id}>
@@ -52,8 +83,6 @@ export default function MoviesListPage() {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="status-message">Loading...</p>
         )}
       </section>
     </main>

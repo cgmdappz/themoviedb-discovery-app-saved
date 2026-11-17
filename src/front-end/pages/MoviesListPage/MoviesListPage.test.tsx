@@ -38,6 +38,7 @@ function mockMoviesResponse(results: Movie[]) {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({
+      ok: true,
       json: vi.fn().mockResolvedValue({ results }),
     }),
   );
@@ -94,6 +95,95 @@ describe('MoviesListPage', () => {
     // Assert: the request uses the configured default values.
     expect(fetch).toHaveBeenCalledWith(
       `/api/movies/popular?language=${DEFAULT_LANGUAGE}&page=${DEFAULT_PAGE}&region=${DEFAULT_REGION}`,
+    );
+  });
+
+  it('shows an explicit message when the movies API returns an error', async () => {
+    // Arrange: simulate the backend returning an HTTP error.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: vi.fn(),
+      }),
+    );
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Act
+    renderMoviesListPage();
+
+    // Assert: the loading state is replaced with visible troubleshooting help.
+    expect((await screen.findByRole('alert')).textContent).toContain(
+      'Vérifiez le serveur et le jeton TMDB configuré côté backend.',
+    );
+    expect(screen.queryByText('Loading...')).toBeNull();
+    expect(console.error).toHaveBeenCalledWith(
+      'Error loading popular movies:',
+      expect.objectContaining({
+        message: 'Movies API request failed with status 500',
+      }),
+    );
+  });
+
+  it('shows an explicit message when the movies API response is malformed', async () => {
+    // Arrange: return a successful HTTP response with an invalid results value.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ results: 'not-an-array' }),
+      }),
+    );
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Act
+    renderMoviesListPage();
+
+    // Assert: malformed data is logged and does not leave the page loading.
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.queryByText('Loading...')).toBeNull();
+    expect(console.error).toHaveBeenCalledWith(
+      'Error loading popular movies:',
+      expect.objectContaining({
+        message: 'Movies API returned an invalid results list.',
+      }),
+    );
+  });
+
+  it('shows an empty state when the movies API returns no results', async () => {
+    // Arrange: provide a successful response without any movies.
+    mockMoviesResponse([]);
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    // Act
+    renderMoviesListPage();
+
+    // Assert: an empty result is distinct from loading or a failed request.
+    expect(
+      await screen.findByText("Aucun film n'a été renvoyé par TMDB."),
+    ).toBeTruthy();
+  });
+
+  it('shows an explicit message when the network request fails', async () => {
+    // Arrange: simulate a network failure before an HTTP response is received.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('Network error')),
+    );
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Act
+    renderMoviesListPage();
+
+    // Assert: the network error is logged and the user sees the error state.
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(console.error).toHaveBeenCalledWith(
+      'Error loading popular movies:',
+      expect.objectContaining({ message: 'Network error' }),
     );
   });
 });
