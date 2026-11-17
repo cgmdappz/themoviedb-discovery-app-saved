@@ -44,6 +44,28 @@ Les paramètres par défaut sont la langue `fr-FR`, la région `FR` et la premi�
 
 Le serveur Express écoute sur le port `3000`. Vite sert l'interface sur le port `5173` et transmet les requêtes `/api` au serveur Express.
 
+## Storybook
+
+Storybook permet de développer et valider les composants frontend isolément,
+dans leurs différents états, sans lancer l'API TMDB.
+
+```sh
+npm run storybook
+```
+
+Ouvrez [http://localhost:6006](http://localhost:6006). La story
+`Interface/ThemeToggle` montre ses variantes de thème clair et sombre.
+Pour documenter un futur widget, ajoutez un fichier `*.stories.tsx` à côté du
+composant, décrivez ses propriétés dans `args` et créez une story pour chaque
+état pertinent. Les stories sont découvertes automatiquement dans
+`src/front-end`.
+
+Pour générer le site statique de Storybook :
+
+```sh
+npm run build-storybook
+```
+
 ## Création de la base de données
 
 Après l'installation des dépendances, créez et initialisez la base SQLite avec le CLI du backend :
