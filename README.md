@@ -82,6 +82,10 @@ npx tsx src/back-end/backend-cli.ts create-database --path ./data/ma-base.sqlite
 
 La commande initialise le schéma sans supprimer les données d'une base existante.
 
+### Widget « Durée moyenne »
+
+Dans Storybook, `Dashboard/Durée moyenne` présente les états nominal, chargement, absence de données et erreur. Le composant `AverageMovieDurationWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `minutes`. Pour `success`, fournir la moyenne en minutes calculée à partir des durées strictement positives ; utiliser `empty` quand aucune durée valide n'est disponible, et non une valeur zéro.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
