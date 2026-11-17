@@ -60,6 +60,26 @@ npx tsx src/back-end/backend-cli.ts create-database --path ./data/ma-base.sqlite
 
 La commande initialise le schéma sans supprimer les données d'une base existante.
 
+## Import des films depuis un fichier CSV
+
+La commande `import-movies` insère ou actualise les films à partir d'un CSV.
+Les colonnes obligatoires sont `id`, `title`, `original_title`,
+`original_language`, `overview`, `release_date`, `popularity`, `vote_average`,
+`vote_count`, `poster_path`, `backdrop_path`, `runtime_minutes`, `budget`,
+`revenue` et `collected_at`. L'ordre des colonnes est libre et les champs
+facultatifs peuvent rester vides. Les valeurs vides sont importées comme
+inconnues ; une durée, un budget ou une recette égaux à zéro sont également
+considérés comme inconnus. `release_year` est généré par SQLite.
+
+Un exemple est disponible dans [data/movies.csv](data/movies.csv).
+
+```sh
+npx tsx src/back-end/backend-cli.ts import-movies ./data/movies.csv
+npx tsx src/back-end/backend-cli.ts import-movies ./data/movies.csv --path ./data/custom-movies.sqlite
+```
+
+Le fichier est validé avant l'ouverture de la base et l'import est transactionnel.
+
 ## API locale
 
 | Méthode | Route                 | Description                                                       |
