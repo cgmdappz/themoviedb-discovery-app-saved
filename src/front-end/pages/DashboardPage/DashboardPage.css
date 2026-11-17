@@ -1,0 +1,130 @@
+.dashboard-page {
+  width: min(1200px, calc(100% - 40px));
+}
+
+.dashboard-kicker {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dashboard-filters,
+.dashboard-metrics {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dashboard-notice {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid #d5b66d;
+  border-radius: 10px;
+  background: #fff5d8;
+  color: #6b5014;
+}
+
+.dashboard-filters {
+  grid-template-columns: repeat(4, 1fr);
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.dashboard-filters label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dashboard-filters input,
+.dashboard-filters select {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--page-foreground);
+  font: inherit;
+}
+
+.dashboard-metrics {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dashboard-metrics article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.dashboard-metrics span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.dashboard-metrics strong {
+  color: var(--heading);
+  font-size: 1.5rem;
+}
+
+.dashboard-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.dashboard-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.dashboard-table thead th {
+  color: var(--heading);
+  background: var(--surface-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.dashboard-table tbody th {
+  color: var(--heading);
+}
+
+@media (max-width: 760px) {
+  .dashboard-filters,
+  .dashboard-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-page {
+    width: min(100% - 32px, 1200px);
+  }
+
+  .dashboard-filters,
+  .dashboard-metrics {
+    grid-template-columns: 1fr;
+  }
+}
