@@ -1,0 +1,54 @@
+.movies-in-database-widget {
+  min-height: 190px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 8px 18px rgb(41 69 99 / 9%);
+}
+
+.movies-in-database-eyebrow {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.movies-in-database-widget h2 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1.25rem;
+}
+
+.movies-in-database-content {
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.movies-in-database-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.movies-in-database-count {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.movies-in-database-count strong {
+  color: var(--heading);
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .movies-in-database-widget {
+    min-height: 170px;
+    padding: 20px;
+  }
+}

@@ -84,11 +84,12 @@ La commande initialise le schéma sans supprimer les données d'une base existan
 
 ## API locale
 
-| Méthode | Route                 | Description                                                       |
-| ------- | --------------------- | ----------------------------------------------------------------- |
-| `GET`   | `/api/health`         | Vérifie que le serveur répond.                                    |
-| `GET`   | `/api/movies/popular` | Renvoie les films populaires.                                     |
-| `GET`   | `/api/movies/:id`     | Renvoie les détails du film correspondant à son identifiant TMDB. |
+| Méthode | Route                         | Description                                                       |
+| ------- | ----------------------------- | ----------------------------------------------------------------- |
+| `GET`   | `/api/health`                 | Vérifie que le serveur répond.                                    |
+| `GET`   | `/api/dashboard/movies/count` | Renvoie le nombre de films enregistrés dans la base SQLite.       |
+| `GET`   | `/api/movies/popular`         | Renvoie les films populaires.                                     |
+| `GET`   | `/api/movies/:id`             | Renvoie les détails du film correspondant à son identifiant TMDB. |
 
 Les routes des films acceptent les paramètres `language`, `page` et `region`. Exemple :
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import { registerDashboardApi } from './api/dashboard-api';
 import { registerHealthApi } from './api/health-api';
 import { registerMoviesApi } from './api/movies-api';
 
@@ -7,6 +8,7 @@ const app = express();
 
 // Register API routes from dedicated modules
 registerHealthApi(app);
+registerDashboardApi(app);
 registerMoviesApi(app);
 
 // Start the server and listen on the specified port
