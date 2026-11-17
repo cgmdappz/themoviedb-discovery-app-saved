@@ -86,6 +86,10 @@ La commande initialise le schéma sans supprimer les données d'une base existan
 
 Dans Storybook, `Dashboard/Durée moyenne` présente les états nominal, chargement, absence de données et erreur. Le composant `AverageMovieDurationWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `minutes`. Pour `success`, fournir la moyenne en minutes calculée à partir des durées strictement positives ; utiliser `empty` quand aucune durée valide n'est disponible, et non une valeur zéro.
 
+### Widget « Note moyenne »
+
+Dans Storybook, `Dashboard/Note moyenne` présente les états nominal, chargement, absence de notes et erreur. Le composant `AverageMovieRatingWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `rating`. Pour `success`, fournir la moyenne arithmétique simple, non pondérée, des notes connues de l'ensemble du catalogue, sur 10, et non celle d'une seule page. Utiliser `empty` en l'absence de notes ; une note de zéro reste une valeur connue.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
