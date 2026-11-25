@@ -22,7 +22,7 @@
     "fmt:check": "oxfmt --check",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "vite",
-    "dev:server": "tsx watch src/back-end/index.ts",
+    "dev:server": "node --use-env-proxy --watch --import tsx src/back-end/index.ts",
     "test": "vitest run --coverage",
     "test:verbose": "vitest run --reporter verbose",
     "prepare": "husky",

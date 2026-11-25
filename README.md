@@ -14,7 +14,7 @@ Les paramètres par défaut sont la langue `fr-FR`, la région `FR` et la premi�
 
 ## Prérequis
 
-- Node.js 24 (version indiquée dans `.nvmrc`).
+- Node.js 24.5 ou supérieur dans la version 24 (version indiquée dans `.nvmrc`).
 - npm.
 - Un jeton d'accès à l'API TMDB. Vous pouvez en obtenir un depuis les paramètres de votre compte TMDB, dans la section API.
 
@@ -43,6 +43,8 @@ Les paramètres par défaut sont la langue `fr-FR`, la région `FR` et la premi�
 4. Ouvrez [http://localhost:5173](http://localhost:5173).
 
 Le serveur Express écoute sur le port `3000`. Vite sert l'interface sur le port `5173` et transmet les requêtes `/api` au serveur Express.
+Le serveur utilise les variables `HTTP_PROXY`, `HTTPS_PROXY` et `NO_PROXY` si
+elles sont définies, pour permettre l'accès à TMDB derrière un proxy réseau.
 
 ## Storybook
 
