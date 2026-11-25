@@ -98,6 +98,12 @@ Dans Storybook, `Dashboard/Pays le plus représenté` présente les états nomin
 
 Dans Storybook, `Dashboard/Film le plus populaire` présente les états nominal, affiche absente, popularité inconnue, titre long, chargement, absence de film et erreur. Le composant `MostPopularMovieWidget` reçoit `state` : `loading`, `error`, `empty` ou `success` avec `movie`. Le film fourni contient `title`, `year` (ou `null`), `posterUrl` (ou `null`) et `popularity` (indice TMDB ou `null`). Le composant affiche cet indice avec deux décimales ; il ne sélectionne pas le film et ne transforme pas l'indice en note ou en nombre de votes.
 
+### Widget « Film au meilleur ROI »
+
+Dans Storybook, `Dashboard/Film au meilleur ROI` présente les états nominal, affiche absente, ROI inconnu, chargement, absence de film éligible et erreur. `BestRoiMovieWidget` reçoit `state` : `loading`, `error`, `empty` ou `success` avec `movie` contenant `title`, `year` (ou `null`), `posterUrl` (ou `null`) et `roi` (pourcentage déjà calculé ou `null`). Le composant affiche le résultat à deux décimales ; il ne calcule pas le ROI et ne classe pas les films.
+
+La règle validée pour une future source de données réelles est `ROI = (recettes - budget) / budget × 100`. Un film est éligible si son budget est connu et strictement positif et si ses recettes sont connues et supérieures ou égales à zéro. Un budget nul ou inconnu, ou des recettes inconnues ou négatives, excluent le film. Cette règle n'est pas encore implémentée ni reliée aux données réelles.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
