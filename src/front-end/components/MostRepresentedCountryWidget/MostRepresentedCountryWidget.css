@@ -1,0 +1,58 @@
+.most-represented-country-widget {
+  min-width: 0;
+  min-height: 190px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 8px 18px rgb(41 69 99 / 9%);
+}
+
+.most-represented-country-eyebrow {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.most-represented-country-widget h2 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1.25rem;
+}
+
+.most-represented-country-content {
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.most-represented-country-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.most-represented-country-value {
+  min-width: 0;
+}
+
+.most-represented-country-name {
+  overflow-wrap: anywhere;
+  color: var(--heading);
+  font-weight: 700;
+}
+
+.most-represented-country-value strong {
+  color: var(--heading);
+  font-size: 2rem;
+}
+
+@media (max-width: 600px) {
+  .most-represented-country-widget {
+    min-height: 170px;
+    padding: 20px;
+  }
+}

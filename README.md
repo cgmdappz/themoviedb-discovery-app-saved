@@ -90,6 +90,10 @@ Dans Storybook, `Dashboard/Durée moyenne` présente les états nominal, chargem
 
 Dans Storybook, `Dashboard/Note moyenne` présente les états nominal, chargement, absence de notes et erreur. Le composant `AverageMovieRatingWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `rating`. Pour `success`, fournir la moyenne arithmétique simple, non pondérée, des notes connues de l'ensemble du catalogue, sur 10, et non celle d'une seule page. Utiliser `empty` en l'absence de notes ; une note de zéro reste une valeur connue.
 
+### Widget « Pays le plus représenté »
+
+Dans Storybook, `Dashboard/Pays le plus représenté` présente les états nominal, nom long, chargement, absence de pays connu et erreur. Le composant `MostRepresentedCountryWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `country` (nom du pays) et `count` (nombre de films distincts). Le pays et le nombre sont calculés par la source des données ; le composant ne recompte pas les associations.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
