@@ -108,6 +108,10 @@ La règle validée pour une future source de données réelles est `ROI = (recet
 
 Dans Storybook, `Dashboard/Film au plus faible ROI` présente les états ROI négatif, zéro, inconnu, affiche absente, chargement, absence de film éligible et erreur. `LowestRoiMovieWidget` utilise le même contrat `state` et la même règle validée que le widget au meilleur ROI : la source fournit le film et le ROI en pourcentage, ou `null` si la valeur est inconnue. Le composant conserve le signe, ne calcule pas le ROI et ne classe pas les films.
 
+### Widget « Genres représentés »
+
+Dans Storybook, `Dashboard/Genres représentés` présente les états nominal, zéro genre, nombre inconnu, chargement et erreur. `RepresentedGenresWidget` reçoit `state` : `loading`, `error`, `empty` pour un nombre inconnu, ou `success` avec `count`, un nombre entier non négatif de genres distincts fourni par la source. Zéro est une valeur connue ; le composant ne compte pas les associations film-genre.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
