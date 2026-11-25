@@ -104,6 +104,10 @@ Dans Storybook, `Dashboard/Film au meilleur ROI` présente les états nominal, a
 
 La règle validée pour une future source de données réelles est `ROI = (recettes - budget) / budget × 100`. Un film est éligible si son budget est connu et strictement positif et si ses recettes sont connues et supérieures ou égales à zéro. Un budget nul ou inconnu, ou des recettes inconnues ou négatives, excluent le film. Cette règle n'est pas encore implémentée ni reliée aux données réelles.
 
+### Widget « Film au plus faible ROI »
+
+Dans Storybook, `Dashboard/Film au plus faible ROI` présente les états ROI négatif, zéro, inconnu, affiche absente, chargement, absence de film éligible et erreur. `LowestRoiMovieWidget` utilise le même contrat `state` et la même règle validée que le widget au meilleur ROI : la source fournit le film et le ROI en pourcentage, ou `null` si la valeur est inconnue. Le composant conserve le signe, ne calcule pas le ROI et ne classe pas les films.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |
