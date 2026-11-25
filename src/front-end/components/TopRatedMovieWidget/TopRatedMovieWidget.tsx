@@ -1,15 +1,11 @@
-import { useState } from 'react';
+import DashboardMovieDetails, {
+  type DashboardMovie,
+} from '../DashboardMovieDetails/DashboardMovieDetails';
 import './TopRatedMovieWidget.css';
 
-export interface TopRatedMovie {
-  /** Titre du film. */
-  title: string;
-  /** Année de sortie, ou null si elle est inconnue. */
-  year: number | null;
+export interface TopRatedMovie extends DashboardMovie {
   /** Note du film sur 10. */
   rating: number;
-  /** URL de l'affiche, ou null si elle est absente. */
-  posterUrl: string | null;
 }
 
 export type TopRatedMovieState =
@@ -26,8 +22,6 @@ export interface TopRatedMovieWidgetProps {
 export default function TopRatedMovieWidget({
   state,
 }: TopRatedMovieWidgetProps) {
-  const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null);
-
   return (
     <article
       className="top-rated-movie-widget"
@@ -48,38 +42,17 @@ export default function TopRatedMovieWidget({
         ) : state.status === 'empty' ? (
           <p role="status">Aucun film noté disponible.</p>
         ) : (
-          <div className="top-rated-movie-details">
-            {state.movie.posterUrl &&
-            state.movie.posterUrl !== failedPosterUrl ? (
-              <img
-                className="top-rated-movie-poster"
-                src={state.movie.posterUrl}
-                alt={`Affiche de ${state.movie.title}`}
-                onError={() => setFailedPosterUrl(state.movie.posterUrl)}
-              />
-            ) : (
-              <div
-                className="top-rated-movie-poster top-rated-movie-placeholder"
-                role="img"
-                aria-label={`Affiche indisponible pour ${state.movie.title}`}
-              >
-                Affiche indisponible
-              </div>
-            )}
-            <div className="top-rated-movie-copy">
-              <h3>{state.movie.title}</h3>
-              <p>{state.movie.year ?? 'Année inconnue'}</p>
-              <p>
-                <strong>
-                  {state.movie.rating.toLocaleString('fr-FR', {
-                    minimumFractionDigits: 1,
-                    maximumFractionDigits: 1,
-                  })}
-                </strong>{' '}
-                <span>/ 10</span>
-              </p>
-            </div>
-          </div>
+          <DashboardMovieDetails movie={state.movie}>
+            <p>
+              <strong>
+                {state.movie.rating.toLocaleString('fr-FR', {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}
+              </strong>{' '}
+              <span>/ 10</span>
+            </p>
+          </DashboardMovieDetails>
         )}
       </div>
     </article>

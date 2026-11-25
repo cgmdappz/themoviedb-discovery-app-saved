@@ -94,6 +94,10 @@ Dans Storybook, `Dashboard/Note moyenne` présente les états nominal, chargemen
 
 Dans Storybook, `Dashboard/Pays le plus représenté` présente les états nominal, nom long, chargement, absence de pays connu et erreur. Le composant `MostRepresentedCountryWidget` reçoit la propriété `state` : `loading`, `error`, `empty` ou `success` avec `country` (nom du pays) et `count` (nombre de films distincts). Le pays et le nombre sont calculés par la source des données ; le composant ne recompte pas les associations.
 
+### Widget « Film le plus populaire »
+
+Dans Storybook, `Dashboard/Film le plus populaire` présente les états nominal, affiche absente, popularité inconnue, titre long, chargement, absence de film et erreur. Le composant `MostPopularMovieWidget` reçoit `state` : `loading`, `error`, `empty` ou `success` avec `movie`. Le film fourni contient `title`, `year` (ou `null`), `posterUrl` (ou `null`) et `popularity` (indice TMDB ou `null`). Le composant affiche cet indice avec deux décimales ; il ne sélectionne pas le film et ne transforme pas l'indice en note ou en nombre de votes.
+
 ## API locale
 
 | Méthode | Route                         | Description                                                       |

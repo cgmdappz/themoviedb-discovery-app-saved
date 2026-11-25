@@ -1,0 +1,40 @@
+.dashboard-movie-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dashboard-movie-poster {
+  width: 100px;
+  max-width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.dashboard-movie-placeholder {
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-movie-copy {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.dashboard-movie-copy h3 {
+  margin: 0 0 6px;
+  color: var(--heading);
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-movie-copy strong {
+  color: var(--heading);
+  font-size: 1.5rem;
+}
