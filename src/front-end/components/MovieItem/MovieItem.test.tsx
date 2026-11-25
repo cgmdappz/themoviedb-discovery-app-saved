@@ -8,13 +8,20 @@ import MovieItem from './MovieItem';
 
 afterEach(cleanup);
 
-const movie = {
+const movie: Movie = {
+  backdrop_path: null,
+  genre_ids: [],
   id: 123,
+  original_language: 'en',
+  original_title: 'Example Movie',
+  overview: 'An example film.',
+  popularity: 12,
   title: 'Example Movie',
   release_date: '2024-05-10',
   vote_average: 7.456,
+  vote_count: 100,
   poster_path: '/example-poster.jpg',
-} as Movie;
+};
 
 function renderMovie(movieToRender: Movie = movie) {
   return render(
@@ -49,7 +56,7 @@ describe('MovieItem', () => {
 
   it('omits the poster image when the movie has no poster', () => {
     // Arrange
-    const movieWithoutPoster = { ...movie, poster_path: null } as Movie;
+    const movieWithoutPoster: Movie = { ...movie, poster_path: null };
 
     // Act
     renderMovie(movieWithoutPoster);

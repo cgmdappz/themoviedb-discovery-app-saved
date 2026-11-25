@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { toSupportedMovie, toSupportedMovieDetails } from './converter';
-import type { TmdbMovie, TmdbMovieDetails } from './types/MoviesTypes';
+import type { TmdbMovie, TmdbMovieDetails } from '../types/MoviesTypes';
 
 // Mock TMDB movie object for testing.
 const mockTmdbMovie: TmdbMovie = {
